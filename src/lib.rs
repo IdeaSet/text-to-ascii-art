@@ -22,7 +22,7 @@ pub fn join_art(s1: &str, s2: &str, gap: usize) -> String {
             // concat each line of the 2 ascii arts
             let s3: Vec<String> = lines1
                 .into_iter()
-                .zip(lines2.into_iter())
+                .zip(lines2)
                 .map(|(str1, str2)| str1.to_owned() + &" ".repeat(gap) + str2)
                 .collect();
 
@@ -36,66 +36,69 @@ fn add_spaces(art_string: &str, leading: usize, trailing: usize) -> String {
 
     let spaces_added: Vec<String> = lines
         .into_iter()
-        .map(|line| " ".repeat(leading).to_owned() + &line.to_owned() + &" ".repeat(trailing))
+        .map(|line| " ".repeat(leading).to_owned() + line + &" ".repeat(trailing))
         .collect();
 
     spaces_added.join("\n")
 }
 
 fn align_center(art_string: &str, width: usize) -> String {
-    let lines: Vec<&str> = art_string.split('\n').collect();
-    let art_length: usize = lines[0].len();
+    let art_length: usize = get_art_length(art_string);
     let spaces = (width - art_length) / 2;
 
     add_spaces(art_string, spaces, spaces)
 }
 
 fn align_left(art_string: &str, width: usize) -> String {
-    let lines: Vec<&str> = art_string.split('\n').collect();
-    let art_length: usize = lines[0].len();
+    let art_length: usize = get_art_length(art_string);
     let spaces = width - art_length;
 
     add_spaces(art_string, 0, spaces)
 }
 
 fn align_right(art_string: &str, width: usize) -> String {
-    let lines: Vec<&str> = art_string.split('\n').collect();
-    let art_length: usize = lines[0].len();
+    let art_length: usize = get_art_length(art_string);
     let spaces = width - art_length;
 
     add_spaces(art_string, spaces, 0)
 }
 
+fn get_art_length(art_string: &str) -> usize {
+    let lines: Vec<&str> = art_string.split('\n').collect();
+    lines[0].len()
+}
+
 pub enum Alignment {
     Left,
     Center,
-    Right
+    Right,
 }
 
 pub fn align(art_string: &str, alignment: Alignment, width: usize) -> String {
     match alignment {
-        Alignment::Left => {align_left(art_string, width)}
-        Alignment::Center => {align_center(art_string, width)}
-        Alignment::Right => {align_right(art_string, width)}
+        Alignment::Left => align_left(art_string, width),
+        Alignment::Center => align_center(art_string, width),
+        Alignment::Right => align_right(art_string, width),
     }
-} 
+}
 
-pub fn convert(input: String, font: &str, leading: usize, gap: usize, trailing: usize) -> Result<String, String> {
+pub fn convert(
+    input: String,
+    font: &str,
+    leading: usize,
+    gap: usize,
+    trailing: usize,
+) -> Result<String, String> {
     // substitutes everything with the equivalent in ascii art, or an empty string instead
-    let art_vector = input
+    let arts = input
         .chars()
-        .map(|ch| {
-            get_font(font)
-                .get(ch as usize)
-                .unwrap_or(&"")
-                .to_owned()
-        })
+        .map(|ch| get_font(font).get(ch as usize).unwrap_or(&"").to_owned())
         .collect::<Vec<&str>>();
 
     // function to go through all the entered characters
     let mut final_string = "".to_string();
     let mut bad_char = false;
-    for art in &art_vector {
+    for art in &arts {
         if art.is_empty() && !bad_char {
             bad_char = true
         }
@@ -104,7 +107,7 @@ pub fn convert(input: String, font: &str, leading: usize, gap: usize, trailing: 
     if bad_char {
         Err("Error: Some not allowed characters, you can use: a..=Z, 0..=9 ,`; : . , < > ( ) ! * # @ ^`".to_string())
     } else {
-        for art in art_vector {
+        for art in arts {
             final_string = join_art(&final_string, art, gap);
         }
 

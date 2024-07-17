@@ -1,7 +1,7 @@
 pub mod fonts;
 use std::io;
 use std::io::Write;
-use text_to_ascii_art::{align, Alignment, convert};
+use text_to_ascii_art::{align, convert, Alignment};
 
 fn main() {
     let font = "small";
@@ -11,7 +11,7 @@ fn main() {
     let symbols1 = "!\"#$%&'()*+,-./:".to_string();
     let symbols2 = ";<=>?@[\\]^_`{|}~".to_string();
 
-    match convert(alphabet1.to_uppercase(), font, 1, 0, 0) {
+    match convert(alphabet1.to_uppercase(), font, 0, 0, 0) {
         Ok(string) => println!("{}", string),
         Err(err) => println!("Error: {}", err),
     }
@@ -35,7 +35,7 @@ fn main() {
         Ok(string) => println!("{}", string),
         Err(err) => println!("Error: {}", err),
     }
-    
+
     match convert(symbols1.to_uppercase(), font, 0, 0, 0) {
         Ok(string) => println!("{}", string),
         Err(err) => println!("Error: {}", err),
@@ -60,11 +60,10 @@ fn main() {
         Ok(string) => println!("{}", align(&string, Alignment::Right, 72)),
         Err(err) => println!("Error: {}", err),
     }
-    
-    
+
     print!("\n\nType your own string: ");
     io::stdout().flush().unwrap();
-    
+
     let mut input = String::new();
 
     io::stdin()
